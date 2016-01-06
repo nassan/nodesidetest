@@ -32,10 +32,10 @@ var app = express();
 //////Middleware, meaning that express upon receiving something from the client, will then pass that something through a chain of middleware
 //////In other words, calling each one of these use functions
 
-//////use gets called everytime a request is received, as opposed to get, post, etc.
+//////use() gets called everytime a request is received, as opposed to get, post, etc.
 
 //////This is the middleware that is imported from the  body-parser package
-app.use(bodyParser());
+app.use(bodyParser.json());
 
 //////This is custom middleware that uses the function pizzaDebug defined on line 43
 app.use(pizzaDebug);
@@ -54,6 +54,7 @@ app.route('/messages/:id?')
 	.get(getMessages)
 	.post(createMessage)
 	.put(updateMessage)
+	.delete(deleteMessage)
 
 function getMessages(req, res, next) {
 
@@ -83,23 +84,21 @@ function createMessage(req, res, next) {
 			return res.send(500, 'Oops')
 		}
 
-		res.send(200);
+		res.sendStatus(200);
 	});
 }
 
 function deleteMessage(req, res, next) {
 
-	var message = new Message(req.body);
+	if (!req.params.id)
+		return res.send(400,'Please provide an ID to delete.')
 
-	message.save(function(err) {
-		if (err) {
-		  //Do you think it might be preferable to use next(err) ?
-		  //What would happen if there we removed the return
+	Message.findByIdAndRemove(req.params.id, function(err, message) {
+		if (err)
 			return res.send(500, 'Oops')
-		}
-
-		res.send(200);
+		res.send(200, message);
 	});
+
 }
 
 function updateMessage(req, res, next) {
@@ -135,4 +134,4 @@ app.use(function(req, res, next) {
 
 //Can you explain this?
 //////This would be an environment variable named PORT, the app could pull up that value and hopefully listen on that port.
-app.listen(process.env.PORT);
+app.listen(4000);
