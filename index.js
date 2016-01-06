@@ -5,12 +5,13 @@
 //Dependencies
 var express = require('express');
 var bodyParser = require('body-parser');
-var Message = require('./models').Message
+var Message = require('./models/MessageModel.js').Message
 //Create server
 //////Instantiates (sort of) an instance (sort of) of an express function
 //////Giving us access to all of expresses cool thngs like the middleware used below when calling the use() function of app.
 //////I believe it could be said that use() is a function on the prototype of express, I think I'm saying that correctly :) 
 var app = express();
+
 
 //Use middleware
 //////Middleware, meaning that express upon receiving something from the client, will then pass that something through a chain of middleware
@@ -23,7 +24,7 @@ app.use(bodyParser.json());
 
 //////This is custom middleware that uses the function pizzaDebug defined on line 43
 app.use(pizzaDebug);
-
+	
 function pizzaDebug (req,res,next) {
   
   if (req.query.debug === 'pizza') {
@@ -39,6 +40,12 @@ app.route('/messages/:id?')
 	.post(createMessage)
 	.put(updateMessage)
 	.delete(deleteMessage)
+
+
+//Create an endpoint for the html form
+app.route('/defaultform').get(function(req,res,next){
+	res.sendFile(__dirname + '/public/home.html')
+})
 
 function getMessages(req, res, next) {
 	//////Allow to get message by an id, and allow skip, limit, and  
@@ -91,6 +98,7 @@ function createMessage(req, res, next) {
 
 	message.save(function(err) {
 		if (err) {
+		  // next(err)
 		  //Do you think it might be preferable to use next(err) ?
 		  //What would happen if there we removed the return
 			return res.sendStatus(500)
@@ -134,6 +142,10 @@ function updateMessage(req, res, next) {
 
 function stam(req, res, next) {
 	res.send('stam');
+}
+
+function catch500Errors(err, req, res, next){
+	res.sendStatus(500)
 }
 
 
