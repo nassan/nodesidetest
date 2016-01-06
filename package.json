@@ -1,0 +1,19 @@
+{
+  "name": "nodesidetest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "^4.13.3",
+    "kerberos": "0.0.17",
+    "mongodb-core": "^1.2.31",
+    "mongoose": "^4.3.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
