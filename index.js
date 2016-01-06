@@ -93,7 +93,7 @@ function createMessage(req, res, next) {
 		if (err) {
 		  //Do you think it might be preferable to use next(err) ?
 		  //What would happen if there we removed the return
-			return res.send(500, 'Oops')
+			return res.sendStatus(500)
 		}
 
 		res.sendStatus(200);
