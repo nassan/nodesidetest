@@ -1,9 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title></title>
-</head>
-<body>
-<h1>Testing</h1>
-</body>
+<!doctype html>
+<html ng-app = "senderApp">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  </head>
+  <body>
+    <div novalidate ng-controller = "mssgController">
+		<h6>Send a message:</h6>
+		<form name='myform' >
+	    	<div >
+	      		<div ng-form='titleform'>
+	        		<input ng-model="message.title" placeholder="Subject" required>
+		  </span>
+	      		</div>
+	      		<div ng-form='contentform'>
+	        		<textarea ng-model="message.content" required placeholder="Message">></textarea> 
+	      		</div>
+	    	</div>
+      		<button ng-disabled="!myform.$valid">Send Message</button>
+  		</form>
+    </div>
+  </body>
 </html>
+
+
+<script type="text/javascript">
+	var senderApp = angular.module('senderApp', [])
+	senderApp.controller('mssgController', ['$scope',function($scope){
+	// senderApp.controller('mssgController', ['$scope', 'Upload',function($scope, Upload){
+	$scope.message = {
+		name : null,
+		content : null
+	};
+
+
+  	//File uploading
+  	// $scope.upload = function (file) {
+  	// 	var FR = new FileReader();
+  	// 	FR.onloadend = function(){
+  	// 		$scope.temp_detail.picture = FR.result;
+  	// 	}
+  	// 	FR.readAsDataURL(file); 
+   //  };
+}]);
+</script>
