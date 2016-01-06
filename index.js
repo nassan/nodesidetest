@@ -57,20 +57,48 @@ app.route('/messages/:id?')
 	.delete(deleteMessage)
 
 function getMessages(req, res, next) {
-
+	//////Allow to get message by an id, and allow skip, limit, and  
 	var query = Message.find();
 
+	//////Allowing an Id filter
 	if (req.params.id) {
 		query.where('_id', req.params.id);
 	}
+	else{
+		query.where('_id');
+	}
 
-	query.limit(req.query.limit || 10)
-		.exec(function(err, messages) {
+	if (req.query.skip) {
+		var skip_value = Number(req.query.skip)
+		if (skip_value <= 0 || skip_value === NaN) 
+			return res.sendStatus(400)
+		query.skip(skip_value)
+	}
+
+	if (req.query.limit) {
+		var limit_value = Number(req.query.limit)
+		if (limit_value <= 0 || limit_value === NaN) 
+			return res.send(400)
+		query.limit(limit_value)
+	}
+
+	if (req.query.sort) {
+		if (['asc', 'desc', 'ascending', 'descending', '1', '-1'].indexOf(req.query.sort) >= 0) {		
+			query.sort({"_id" : req.query.sort})
+		}
+		else{
+			return res.sendStatus(400)
+
+		}
+	}
+
+	query.exec(function(err, messages) {
+			console.log(messages)
 			if (err)
-				return res.send(500, 'Oops')
+				return res.sendStatus(500)
 
 			res.send(messages);
-		})
+	})
 }
 
 function createMessage(req, res, next) {
@@ -135,3 +163,4 @@ app.use(function(req, res, next) {
 //Can you explain this?
 //////This would be an environment variable named PORT, the app could pull up that value and hopefully listen on that port.
 app.listen(4000);
+console.log("Server is now listening...")
