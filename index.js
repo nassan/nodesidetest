@@ -59,6 +59,7 @@ function getMessages(req, res, next) {
 		query.where('_id');
 	}
 
+	//If present, add a skip parameter to the query
 	if (req.query.skip) {
 		var skip_value = Number(req.query.skip)
 		if (skip_value <= 0 || skip_value === NaN) 
@@ -66,6 +67,7 @@ function getMessages(req, res, next) {
 		query.skip(skip_value)
 	}
 
+	//If present, add a limit parameter to the query
 	if (req.query.limit) {
 		var limit_value = Number(req.query.limit)
 		if (limit_value <= 0 || limit_value === NaN) 
@@ -73,6 +75,7 @@ function getMessages(req, res, next) {
 		query.limit(limit_value)
 	}
 
+	//If present, add a sort parameter to the query
 	if (req.query.sort) {
 		if (['asc', 'desc', 'ascending', 'descending', '1', '-1'].indexOf(req.query.sort) >= 0) {		
 			query.sort({"_id" : req.query.sort})
@@ -83,10 +86,11 @@ function getMessages(req, res, next) {
 		}
 	}
 
+	//Actually query against the running mongodb instance sitting on localhost
 	query.exec(function(err, messages) {
 			console.log(messages)
 			if (err)
-				return res.sendStatus(500)
+				next(err)
 
 			res.send(messages);
 	})
@@ -98,10 +102,14 @@ function createMessage(req, res, next) {
 
 	message.save(function(err) {
 		if (err) {
-		  // next(err)
+
 		  //Do you think it might be preferable to use next(err) ?
-		  //What would happen if there we removed the return
-			return res.sendStatus(500)
+		  //////Passing err to next() will stop the middleware chain, and jump to the error handling middleware
+		  next(err)
+
+		  //What would happen if there we removed the return?
+		  //////It will send the response, but will continue executing, 
+		  //////so we will get errors like trying to modify the response after it has been sent, etc.
 		}
 
 		res.sendStatus(200);
@@ -111,14 +119,13 @@ function createMessage(req, res, next) {
 function deleteMessage(req, res, next) {
 
 	if (!req.params.id)
-		return res.send(400,'Please provide an ID to delete.')
+		return res.sendStatus(400)
 
 	Message.findByIdAndRemove(req.params.id, function(err, message) {
 		if (err)
-			return res.send(500, 'Oops')
-		res.send(200, message);
+			next(err)
+		res.sendStatus(200);
 	});
-
 }
 
 function updateMessage(req, res, next) {
@@ -135,8 +142,9 @@ function updateMessage(req, res, next) {
 			message: req.body.message
 		}
 	}, function(err) {
-		if (err) return res.send(500);
-		res.send(200);
+		if (err) 
+			next(err);
+		res.sendStatus(200);
 	})
 }
 
@@ -145,18 +153,18 @@ function stam(req, res, next) {
 }
 
 function catch500Errors(err, req, res, next){
-	res.sendStatus(500)
+	res.send(500,"A Universal 500 error")
 }
-
+app.use(catch500Errors)
+//
 
 // Catch everything else
-
 app.use(function(req, res, next) {
-	res.send('hmmm 404');
+	res.sendStatus(404);
 });
 
 
 //Can you explain this?
-//////This would be an environment variable named PORT, the app could pull up that value and hopefully listen on that port.
+//////This would be an environment variable on the OS named PORT, the app could pull up that value and hopefully listen on that port.
 app.listen(4000);
 console.log("Server is now listening...")
