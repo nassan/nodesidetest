@@ -6,3 +6,5 @@ Nodeside test project
 * 'models' folder contains the MongooseJS models, each model resides in its own file
 
 * 'public' folder contains the app's static files, in this case an html page containing the form for the test
+
+* the form can be reached in the browser at '/defaultform'
