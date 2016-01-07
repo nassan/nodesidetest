@@ -35,8 +35,9 @@
       		<button ng-click="getMessage()">Get Message(s)</button>
   		</form>
 
+  		<label>Filter:</label><input type="text" ng-model="filtertext.title">
   		<ul>
-  			<li ng-repeat="each in messages">{{each.title}}</li>
+  			<li ng-repeat="each in messages | filter:filtertext:strict">{{each.title}}</li>
   		</ul>
 
 
@@ -53,7 +54,7 @@
 	var senderApp = angular.module('senderApp', [])
 	senderApp.controller('mssgController', ['$scope','$http',function($scope, $http){
 	// senderApp.controller('mssgController', ['$scope', 'Upload',function($scope, Upload){
-	$scope.messages = {}
+	$scope.messages = []
 	$scope.file_obj = null
 	$scope.postMessage = function(){
 		$http.post("/messages", {
