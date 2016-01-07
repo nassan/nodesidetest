@@ -34,7 +34,7 @@
 	// senderApp.controller('mssgController', ['$scope', 'Upload',function($scope, Upload){
 
 	$scope.postMessage = function(){
-		$http.post("/messages", {"title": $scope.title, "message" : $scope.message}).then(function(data){
+		$http.post("/messages", {"title": $scope.title, "message" : $scope.message, "created" : Date.now()}).then(function(data){
 			console.log(data)
 		}, function(data){
 			console.log(data)
