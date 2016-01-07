@@ -47,7 +47,7 @@ app.route('/defaultform').get(function(req,res,next){
 })
 
 function getMessages(req, res, next) {
-	//////Allow to get message by an id, and allow skip, limit, and  
+	//////This function allows getting a message by an id, and allow skip, limit, and sort parameters if desired  
 	var query = Message.find();
 
 	//////Allowing an Id filter
@@ -93,6 +93,7 @@ function getMessages(req, res, next) {
 }
 
 function createMessage(req, res, next) {
+	//////This function allows creating a message using the Mongoose Schema Message()
 
 	var message = new Message(req.body);
 	message.save(function(err) {
@@ -112,7 +113,7 @@ function createMessage(req, res, next) {
 }
 
 function deleteMessage(req, res, next) {
-
+	//////This function allows for the deleting of a document in the Mongodb, based on an ID
 	if (!req.params.id)
 		return res.status(400).send("Please provide an ID to delete.")
 
@@ -125,7 +126,7 @@ function deleteMessage(req, res, next) {
 }
 
 function updateMessage(req, res, next) {
-
+	//////This function allows for the updating of a document in the Mongodb, based on an ID
 	if (!req.params.id) {
 		return res.status(400).send("Please provide an ID to update.")
 	}
@@ -135,7 +136,9 @@ function updateMessage(req, res, next) {
 	}, {
 		$set: {
 			title: req.body.title,
-			message: req.body.message
+			message: req.body.message,
+			created: req.body.created,
+			file: req.body.file,
 		}
 	}, function(err) {
 		if (err) 
