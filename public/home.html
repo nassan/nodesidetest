@@ -10,14 +10,14 @@
 		<form name='messageForm' >
 	    	<div >
 	      		<div ng-form='titleform' >
-	        		<input ng-model="message.title" class="input-item" placeholder="Subject" required>
+	        		<input ng-model="title" class="input-item" placeholder="Subject" required>
 		  </span>
 	      		</div>
 	      		<div ng-form='contentform'>
-	        		<textarea ng-model="message.content" class="input-item" required placeholder="Message">></textarea> 
+	        		<textarea ng-model="message" class="input-item" required placeholder="Message"></textarea> 
 	      		</div>
 	    	</div>
-      		<button ng-disabled="!messageForm.$valid">Send Message</button>
+      		<button ng-disabled="!messageForm.$valid" ng-click="postMessage()">Send Message</button>
   		</form>
     </div>
   </body>
@@ -30,12 +30,16 @@
 </style>
 <script type="text/javascript">
 	var senderApp = angular.module('senderApp', [])
-	senderApp.controller('mssgController', ['$scope',function($scope){
+	senderApp.controller('mssgController', ['$scope','$http',function($scope, $http){
 	// senderApp.controller('mssgController', ['$scope', 'Upload',function($scope, Upload){
-	$scope.message = {
-		name : null,
-		content : null
-	};
+
+	$scope.postMessage = function(){
+		$http.post("/messages", {"title": $scope.title, "message" : $scope.message}).then(function(data){
+			console.log(data)
+		}, function(data){
+			console.log(data)
+		})
+	}
 
 
   	//File uploading
