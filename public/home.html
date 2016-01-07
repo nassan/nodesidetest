@@ -6,19 +6,40 @@
   </head>
   <body>
     <div novalidate ng-controller = "mssgController">
-		<h6>Send a message:</h6>
+		<h5>Send a message:</h5>
 		<form name='messageForm' >
 	    	<div >
 	      		<div ng-form='titleform' >
 	        		<input ng-model="title" class="input-item" placeholder="Subject" required>
-		  </span>
 	      		</div>
 	      		<div ng-form='contentform'>
 	        		<textarea ng-model="message" class="input-item" required placeholder="Message"></textarea> 
 	      		</div>
+	      		<div ng-form = 'fileform'>
+	      			<input id="uploader" type="file" ng-model="uploadmodel" onchange="angular.element(this).scope().uploadFile()">
+	      		</div>
 	    	</div>
       		<button ng-disabled="!messageForm.$valid" ng-click="postMessage()">Send Message</button>
   		</form>
+		<hr>
+  		<h5>Search for message(s):</h5>
+		<form name='searchForm' >
+	    	<div >
+	      		<div ng-form='skipamount' >
+	        		<input type="text" ng-model="skipnumber" placeholder="Skip amount">
+	      		</div>
+	      		<div ng-form='limitamount' >
+	        		<input type="text" ng-model="limitnumber" placeholder="Limit amount">
+	      		</div>
+	    	</div>
+      		<button ng-click="getMessage()">Get Message(s)</button>
+  		</form>
+
+  		<ul>
+  			<li ng-repeat="each in messages">{{each.title}}</li>
+  		</ul>
+
+
     </div>
   </body>
 </html>
@@ -32,9 +53,14 @@
 	var senderApp = angular.module('senderApp', [])
 	senderApp.controller('mssgController', ['$scope','$http',function($scope, $http){
 	// senderApp.controller('mssgController', ['$scope', 'Upload',function($scope, Upload){
-
+	$scope.messages = {}
+	$scope.file_obj = null
 	$scope.postMessage = function(){
-		$http.post("/messages", {"title": $scope.title, "message" : $scope.message, "created" : Date.now()}).then(function(data){
+		$http.post("/messages", {
+			"title": $scope.title, 
+			"message" : $scope.message, 
+			"created" : Date.now(),
+			"file" : $scope.file_obj }).then(function(data){
 			console.log(data)
 		}, function(data){
 			console.log(data)
@@ -42,13 +68,30 @@
 	}
 
 
+	$scope.getMessage = function(){
+		$http.get("/messages?" + 
+			"limit=" + $scope.limitnumber + 
+			"&skip=" + $scope.skipnumber)
+		.then(function(data){
+
+			$scope.messages = data.data
+			console.log($scope.messages)
+		}, function(data){
+			console.log(data)
+		})
+	}
+
+
   	//File uploading
-  	// $scope.upload = function (file) {
-  	// 	var FR = new FileReader();
-  	// 	FR.onloadend = function(){
-  	// 		$scope.temp_detail.picture = FR.result;
-  	// 	}
-  	// 	FR.readAsDataURL(file); 
-   //  };
+  	$scope.uploadFile = function() {
+  		console.log("File uploading...")
+  		var FR = new FileReader();
+  		FR.onloadend = function(){
+  			$scope.file_obj = FR.result;
+  			console.log($scope.file_obj)
+  		}
+
+  		FR.readAsDataURL(document.getElementById('uploader').files[0]); 
+    };
 }]);
 </script>

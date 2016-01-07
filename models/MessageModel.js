@@ -11,7 +11,8 @@ mongoose.connect('localhost');
 var Message = mongoose.model('Message', {
 	title: {type : String, required : true},
 	message: {type : String, required : true},
-	created: Date
+	created: Date,
+	file : String
 });
 
 module.exports.Message = Message

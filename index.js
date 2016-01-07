@@ -99,7 +99,6 @@ function getMessages(req, res, next) {
 function createMessage(req, res, next) {
 
 	var message = new Message(req.body);
-
 	message.save(function(err) {
 		if (err) {
 
