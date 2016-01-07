@@ -6,6 +6,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var Message = require('./models/MessageModel.js').Message
+
 //Create server
 //////Instantiates (sort of) an instance (sort of) of an express function
 //////Giving us access to all of expresses cool thngs like the middleware used below when calling the use() function of app.
@@ -13,11 +14,9 @@ var Message = require('./models/MessageModel.js').Message
 var app = express();
 
 
-//Use middleware
+//Register middleware
 //////Middleware, meaning that express upon receiving something from the client, will then pass that something through a chain of middleware
-//////In other words, calling each one of these use functions
-
-//////use() gets called everytime a request is received, as opposed to get, post, etc.
+//////In other words, calling each one of these functions registered by use()
 
 //////This is the middleware that is imported from the  body-parser package
 app.use(bodyParser.json());
@@ -42,7 +41,7 @@ app.route('/messages/:id?')
 	.delete(deleteMessage)
 
 
-//Create an endpoint for the html form
+//Create a resource for the static html form
 app.route('/defaultform').get(function(req,res,next){
 	res.sendFile(__dirname + '/public/home.html')
 })
@@ -59,40 +58,37 @@ function getMessages(req, res, next) {
 		query.where('_id');
 	}
 
+
 	//If present, add a skip parameter to the query
 	if (req.query.skip) {
 		var skip_value = Number(req.query.skip)
-		if (skip_value <= 0 || skip_value === NaN) 
-			return res.sendStatus(400)
+		if (skip_value <= 0) 
+			return res.status(400).send("A positive number must be used provided as a skip value.")
 		query.skip(skip_value)
 	}
-
 	//If present, add a limit parameter to the query
 	if (req.query.limit) {
 		var limit_value = Number(req.query.limit)
-		if (limit_value <= 0 || limit_value === NaN) 
-			return res.send(400)
+		if (limit_value <= 0) 
+			return res.status(400).send("A positive number must be used provided as a limit value.")
 		query.limit(limit_value)
 	}
 
 	//If present, add a sort parameter to the query
 	if (req.query.sort) {
-		if (['asc', 'desc', 'ascending', 'descending', '1', '-1'].indexOf(req.query.sort) >= 0) {		
+		if (['asc', 'desc', 'ascending', 'descending', '1', '-1'].indexOf(req.query.sort) >= 0)		
 			query.sort({"_id" : req.query.sort})
-		}
-		else{
-			return res.sendStatus(400)
-
-		}
+		else
+			return res.status(400).send("Invalid sort parameter.")
 	}
 
 	//Actually query against the running mongodb instance sitting on localhost
 	query.exec(function(err, messages) {
-			console.log(messages)
 			if (err)
 				next(err)
 
-			res.send(messages);
+			else
+				res.status(200).send(messages);
 	})
 }
 
@@ -101,36 +97,37 @@ function createMessage(req, res, next) {
 	var message = new Message(req.body);
 	message.save(function(err) {
 		if (err) {
-
 		  //Do you think it might be preferable to use next(err) ?
 		  //////Passing err to next() will stop the middleware chain, and jump to the error handling middleware
 		  next(err)
 
 		  //What would happen if there we removed the return?
-		  //////It will send the response, but will continue executing, 
+		  //////It will send the response, but will continue executing, whats stopping it? It's single-threaded :)
+		  //////Friends at Stackoverflow reminded me that nodejs has no thread to stop the one this script is executing on :)
 		  //////so we will get errors like trying to modify the response after it has been sent, etc.
 		}
-
-		res.sendStatus(200);
+		else
+			res.status(200).send("Successfully created message.");
 	});
 }
 
 function deleteMessage(req, res, next) {
 
 	if (!req.params.id)
-		return res.sendStatus(400)
+		return res.status(400).send("Please provide an ID to delete.")
 
 	Message.findByIdAndRemove(req.params.id, function(err, message) {
 		if (err)
 			next(err)
-		res.sendStatus(200);
+		else
+			res.status(200).send("Successfully deleted message.");
 	});
 }
 
 function updateMessage(req, res, next) {
 
 	if (!req.params.id) {
-		return res.send(400, ' missing message id');
+		return res.status(400).send("Please provide an ID to update.")
 	}
 
 	Message.update({
@@ -143,16 +140,13 @@ function updateMessage(req, res, next) {
 	}, function(err) {
 		if (err) 
 			next(err);
-		res.sendStatus(200);
+		else
+			res.status(200).send("Successfully updated message.");
 	})
 }
 
-function stam(req, res, next) {
-	res.send('stam');
-}
-
 function catch500Errors(err, req, res, next){
-	res.send(500,"A Universal 500 error")
+	res.status(500).send("A Universal 500 error")
 }
 app.use(catch500Errors)
 //
