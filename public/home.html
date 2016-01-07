@@ -7,23 +7,27 @@
   <body>
     <div novalidate ng-controller = "mssgController">
 		<h6>Send a message:</h6>
-		<form name='myform' >
+		<form name='messageForm' >
 	    	<div >
-	      		<div ng-form='titleform'>
-	        		<input ng-model="message.title" placeholder="Subject" required>
+	      		<div ng-form='titleform' >
+	        		<input ng-model="message.title" class="input-item" placeholder="Subject" required>
 		  </span>
 	      		</div>
 	      		<div ng-form='contentform'>
-	        		<textarea ng-model="message.content" required placeholder="Message">></textarea> 
+	        		<textarea ng-model="message.content" class="input-item" required placeholder="Message">></textarea> 
 	      		</div>
 	    	</div>
-      		<button ng-disabled="!myform.$valid">Send Message</button>
+      		<button ng-disabled="!messageForm.$valid">Send Message</button>
   		</form>
     </div>
   </body>
 </html>
 
-
+<style type="text/css">
+	.ng-invalid.ng-dirty > .input-item{
+		background: red;
+	}
+</style>
 <script type="text/javascript">
 	var senderApp = angular.module('senderApp', [])
 	senderApp.controller('mssgController', ['$scope',function($scope){
